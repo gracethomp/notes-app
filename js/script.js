@@ -37,7 +37,7 @@ let notesData = [
     noteContent:
       "Life's journey is an unpredictable dance, where the steps we take shape the music we leave behind.",
     datesMentioned: [],
-    archived: false,
+    archived: true,
   },
   {
     name: "New feature",
