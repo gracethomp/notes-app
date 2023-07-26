@@ -1,13 +1,13 @@
 h2 {
-    margin: 2rem;
+    margin: 1rem 2rem;
+}
+
+.table-section {
+    margin: 1%;
 }
 
 thead > tr.table-dark {
     background-color: #212529;
-}
-
-.active-button {
-    text-decoration: underline;
 }
 
 .category-cell {
