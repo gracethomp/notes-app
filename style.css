@@ -1,3 +1,40 @@
-th, td {
-    padding: 10px 20px !important;
+h2 {
+    margin: 2rem;
 }
+
+thead > tr.table-dark {
+    background-color: #212529;
+}
+
+.active-button {
+    text-decoration: underline;
+}
+
+.category-cell {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.category-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background-color: black;
+    color: aliceblue;
+}
+
+svg {
+    display: inline;
+}
+
+.bi {
+    cursor: pointer;
+}
+
+.category-icon-img {
+    cursor: initial;
+}
+
