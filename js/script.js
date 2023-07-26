@@ -1,4 +1,4 @@
-import { actions, task, idea, randomThoughts } from "./icons.js";
+import { archive, pen, trash, task, idea, randomThoughts } from "./icons.js";
 
 const categories = [
   {
@@ -88,12 +88,28 @@ function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
 }
 
+function createActions(index) {
+  return createActionButton(archive, () => {
+    notesData[index].archived = !notesData[index].archived;
+    updateNotesTable();
+    updateCategoriesTable();
+  });
+}
+
+function createActionButton(icon, clickHandler) {
+  const button = document.createElement("td");
+  button.innerHTML = icon;
+  button.addEventListener("click", clickHandler);
+  return button;
+}
+
 function updateNotesTable() {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
   notesData.forEach((note, index) => {
     if (showArchivedNotes == note.archived) {
       const row = document.createElement("tr");
+      row.setAttribute("data-index", index);
       row.innerHTML =
         "<td>" +
         selectCategoryIcon(note.noteCategory) +
@@ -102,8 +118,8 @@ function updateNotesTable() {
                 <td>${note.timeOfCreation}</td>
                 <td>${note.noteCategory}</td>
                 <td>${note.noteContent}</td>
-                <td>${note.datesMentioned.join(", ")}</td>` +
-        actions(index);
+                <td>${note.datesMentioned.join(", ")}</td>`;
+      row.appendChild(createActions(index));
       tableBody.appendChild(row);
     }
   });
@@ -113,14 +129,12 @@ function updateCategoriesTable() {
   const tableBody = document.querySelector(".category-list");
   categories.forEach((category) => {
     const row = document.createElement("tr");
-    row.innerHTML = `
-                <td class="category-cell">
+    row.innerHTML = `<td class="category-cell">
                     ${category.icon}
                 </td>
                 <td>${category.name}</td>
                 <td>${category.active}</td>
-                <td>${category.archived}</td>
-            `;
+                <td>${category.archived}</td>`;
     tableBody.appendChild(row);
   });
 }
