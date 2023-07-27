@@ -1,25 +1,5 @@
-import { archive, pen, trash, task, idea, randomThoughts } from "./icons.js";
-
-const categories = [
-  {
-    name: "Task",
-    active: 3,
-    archived: 0,
-    icon: task,
-  },
-  {
-    name: "Random Thought",
-    active: 2,
-    archived: 0,
-    icon: randomThoughts,
-  },
-  {
-    name: "Idea",
-    active: 2,
-    archived: 0,
-    icon: idea,
-  },
-];
+import { archive, pen, trash } from "./icons.js";
+import { categories } from "./mockup.js";
 
 let notesData = [
   {
@@ -88,19 +68,49 @@ function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
 }
 
-function createActions(index) {
-  return createActionButton(archive, () => {
-    notesData[index].archived = !notesData[index].archived;
-    updateNotesTable();
-    updateCategoriesTable();
-  });
+function clearAll() {
+  notesData.splice(0, notesData.length);
+  updateNotesTable();
+  updateCategoriesTable();
 }
 
-function createActionButton(icon, clickHandler) {
+function archiveNote(index) {
+  notesData[index].archived = !notesData[index].archived;
+  updateNotesTable();
+  updateCategoriesTable();
+}
+
+function removeNote(note) {
+  notesData = notesData.filter((e) => e != note);
+  updateNotesTable();
+  updateCategoriesTable();
+}
+
+function createActionButton(icon, clickHandler, id) {
   const button = document.createElement("td");
   button.innerHTML = icon;
+  button.setAttribute("data-bs-toggle", "modal");
+  button.setAttribute("data-bs-target", id);
   button.addEventListener("click", clickHandler);
   return button;
+}
+
+function createNoteRow(note, index) {
+  const row = document.createElement("tr");
+  row.setAttribute("data-index", index);
+  row.innerHTML =
+    "<td>" +
+    selectCategoryIcon(note.noteCategory) +
+    `</td>
+                <td>${note.name}</td>
+                <td>${note.timeOfCreation}</td>
+                <td>${note.noteCategory}</td>
+                <td>${note.noteContent}</td>
+                <td>${note.datesMentioned.join(", ")}</td>`;
+  row.appendChild(createActionButton(archive, () => archiveNote(index), "#exampleModal"));
+  row.appendChild(createActionButton(pen, () => editNote(note), "#exampleModal"))
+  row.appendChild(createActionButton(trash, () => removeNote(note), "#exampleModal"));
+  return row;
 }
 
 function updateNotesTable() {
@@ -108,18 +118,7 @@ function updateNotesTable() {
   tableBody.innerHTML = "";
   notesData.forEach((note, index) => {
     if (showArchivedNotes == note.archived) {
-      const row = document.createElement("tr");
-      row.setAttribute("data-index", index);
-      row.innerHTML =
-        "<td>" +
-        selectCategoryIcon(note.noteCategory) +
-        `</td>
-                <td>${note.name}</td>
-                <td>${note.timeOfCreation}</td>
-                <td>${note.noteCategory}</td>
-                <td>${note.noteContent}</td>
-                <td>${note.datesMentioned.join(", ")}</td>`;
-      row.appendChild(createActions(index));
+      const row = createNoteRow(note, index);
       tableBody.appendChild(row);
     }
   });
@@ -127,6 +126,7 @@ function updateNotesTable() {
 
 function updateCategoriesTable() {
   const tableBody = document.querySelector(".category-list");
+  tableBody.innerHTML = "";
   categories.forEach((category) => {
     const row = document.createElement("tr");
     row.innerHTML = `<td class="category-cell">
@@ -169,6 +169,10 @@ function selectArchivedNotes() {
 
 activeNotesSection.addEventListener("click", selectActiveNotes);
 archiveNotesSection.addEventListener("click", selectArchivedNotes);
+
+const clearAllButton = document.querySelector(".bi-eraser");
+
+clearAllButton.addEventListener("click", clearAll);
 
 updateNotesTable();
 updateCategoriesTable();
