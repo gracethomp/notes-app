@@ -75,6 +75,7 @@ function clearAll() {
 }
 
 function archiveNote(index) {
+  console.log(index);
   notesData[index].archived = !notesData[index].archived;
   updateNotesTable();
   updateCategoriesTable();
@@ -86,11 +87,57 @@ function removeNote(note) {
   updateCategoriesTable();
 }
 
-function createActionButton(icon, clickHandler, id) {
+function showModal(action, index) {
+  const modal = document.getElementById('myModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalContent = document.getElementById('modalContent');
+  const acceptBtn = document.getElementById('acceptBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  switch (action) {
+    case 'Archive':
+      modalTitle.textContent = 'Archive Note';
+      modalContent.textContent = 'Are you sure you want to archive this note?';
+      acceptBtn.addEventListener("click", () => {
+        archiveNote(index);
+        closeModal();
+      });
+      break;
+    case 'Delete':
+      modalTitle.textContent = 'Delete Note';
+      modalContent.textContent = 'Are you sure you want to delete this note?';
+      acceptBtn.onclick = function () {
+        deleteNote();
+        closeModal();
+      };
+      break;
+    case 'Edit':
+      modalTitle.textContent = 'Edit Note';
+      modalContent.textContent = 'You can edit the note here.';
+      acceptBtn.onclick = function () {
+        editNote();
+        closeModal();
+      };
+      break;
+    default:
+      modalTitle.textContent = '';
+      modalContent.textContent = '';
+  }
+  modal.style.display = 'block';
+
+  cancelBtn.onclick = function () {
+    closeModal();
+  };
+}
+
+function closeModal() {
+  const modal = document.getElementById('myModal');
+  modal.style.display = 'none';
+}
+
+function createActionButton(icon, clickHandler) {
   const button = document.createElement("td");
   button.innerHTML = icon;
-  button.setAttribute("data-bs-toggle", "modal");
-  button.setAttribute("data-bs-target", id);
   button.addEventListener("click", clickHandler);
   return button;
 }
@@ -107,9 +154,9 @@ function createNoteRow(note, index) {
                 <td>${note.noteCategory}</td>
                 <td>${note.noteContent}</td>
                 <td>${note.datesMentioned.join(", ")}</td>`;
-  row.appendChild(createActionButton(archive, () => archiveNote(index), "#exampleModal"));
-  row.appendChild(createActionButton(pen, () => editNote(note), "#exampleModal"))
-  row.appendChild(createActionButton(trash, () => removeNote(note), "#exampleModal"));
+  row.appendChild(createActionButton(archive, () => showModal('Archive', index)));
+  // row.appendChild(createActionButton(pen, () => editNote(note), "#exampleModal"))
+  // row.appendChild(createActionButton(trash, () => removeNote(note), "#exampleModal"));
   return row;
 }
 
