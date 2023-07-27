@@ -1,68 +1,9 @@
 import { archive, pen, trash } from "./icons.js";
-import { categories } from "./mockup.js";
+import { initialNotes, categories } from "./mockup.js";
 
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
 
-let notes = [
-  {
-    name: "Shopping list",
-    timeOfCreation: "April 20, 2021, 12:00",
-    noteCategory: "Task",
-    noteContent: "Tomatoes, Bread",
-    datesMentioned: [],
-    archived: false,
-  },
-  {
-    name: "The theory of evolution",
-    timeOfCreation: "April 27, 2021, 14:30",
-    noteCategory: "Random Thought",
-    noteContent:
-      "Life's journey is an unpredictable dance, where the steps we take shape the music we leave behind.",
-    datesMentioned: [],
-    archived: true,
-  },
-  {
-    name: "New feature",
-    timeOfCreation: "May 5, 2021, 15:36",
-    noteCategory: "Idea",
-    noteContent: "Implement new feature (3/5/2021, 5/5/2021)",
-    datesMentioned: ["3/5/2021", "5/5/2021"],
-    archived: false,
-  },
-  {
-    name: "Sweet dream",
-    timeOfCreation: "May 7, 2021, 17:54",
-    noteCategory: "Random Thought",
-    noteContent: "Had an interesting dream last night",
-    datesMentioned: [],
-    archived: false,
-  },
-  {
-    name: "Birthday gift",
-    timeOfCreation: "May 15, 2021, 10:03",
-    noteCategory: "Task",
-    noteContent:
-      "Grace has a birthday on 17/05/2021. Don't forget to buy a gift.",
-    datesMentioned: ["17/05/2021"],
-    archived: false,
-  },
-  {
-    name: "Trip",
-    timeOfCreation: "May 17, 2021, 3:25",
-    noteCategory: "Task",
-    noteContent: "Plan a weekend trip",
-    datesMentioned: [],
-    archived: false,
-  },
-  {
-    name: "Pet-project",
-    timeOfCreation: "July 21, 2021, 20:45",
-    noteCategory: "Idea",
-    noteContent: "Idea for a new project: Create a recipe sharing app",
-    datesMentioned: [],
-    archived: false,
-  },
-];
+let notes = [...initialNotes];
 
 let showArchivedNotes = false;
 
@@ -72,7 +13,7 @@ function selectCategoryIcon(category) {
 
 function getActiveNotesCount(category) {
   return notes.reduce((accumulator, note) => {
-    if(note.noteCategory === category && !note.archived){
+    if (note.noteCategory === category && !note.archived) {
       return ++accumulator;
     }
     return accumulator;
@@ -81,7 +22,7 @@ function getActiveNotesCount(category) {
 
 function getArchivedNotesCount(category) {
   return notes.reduce((accumulator, note) => {
-    if(note.noteCategory === category && note.archived){
+    if (note.noteCategory === category && note.archived) {
       return ++accumulator;
     }
     return accumulator;
@@ -121,6 +62,22 @@ function createTextarea(placeholder, value) {
   return textarea;
 }
 
+function createCategoriesSelect(category) {
+  const select = document.createElement("select");
+  select.classList.add("form-select");
+  select.setAttribute("aria-label", "Default select example");
+  categories.map((item) => {
+    const option = document.createElement("option");
+    option.setAttribute("value", item.name);
+    if(item.name === category) {
+      option.selected = true;
+    }
+    option.textContent = item.name;
+    select.appendChild(option);
+  })
+  return select;
+}
+
 function showModal(action, note) {
   const modal = document.getElementById("myModal");
   const modalTitle = document.getElementById("modalTitle");
@@ -130,8 +87,6 @@ function showModal(action, note) {
 
   switch (action) {
     case "Archive": {
-      {
-      }
       modalTitle.textContent = "Archive Note";
       modalContent.textContent = "Are you sure you want to archive this note?";
       acceptBtn.onclick = () => {
@@ -153,7 +108,7 @@ function showModal(action, note) {
       modalTitle.textContent = "Edit Note";
       modalContent.textContent = "You can edit the note here.";
       modalContent.appendChild(createInput("Note Name", note.name));
-      modalContent.appendChild(createInput("Category", note.noteCategory));
+      modalContent.appendChild(createCategoriesSelect(note.noteCategory));
       modalContent.appendChild(createTextarea("Content", note.noteContent));
       acceptBtn.onclick = () => {
         editNote();
@@ -201,9 +156,7 @@ function createNoteRow(note, index) {
   row.appendChild(
     createActionButton(archive, () => showModal("Archive", note))
   );
-  // row.appendChild(
-  //   createActionButton(pen, () => showModal("Edit", index, note))
-  // );
+  row.appendChild(createActionButton(pen, () => showModal("Edit", note)));
   row.appendChild(createActionButton(trash, () => showModal("Delete", note)));
   return row;
 }
