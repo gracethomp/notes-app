@@ -70,6 +70,24 @@ function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
 }
 
+function getActiveNotesCount(category) {
+  return notes.reduce((accumulator, note) => {
+    if(note.noteCategory === category && !note.archived){
+      return ++accumulator;
+    }
+    return accumulator;
+  }, 0);
+}
+
+function getArchivedNotesCount(category) {
+  return notes.reduce((accumulator, note) => {
+    if(note.noteCategory === category && note.archived){
+      return ++accumulator;
+    }
+    return accumulator;
+  }, 0);
+}
+
 function archiveNote(note) {
   notes.map((element) => {
     if (element === note) {
@@ -210,8 +228,8 @@ function updateCategoriesTable() {
                     ${category.icon}
                 </td>
                 <td>${category.name}</td>
-                <td>${category.active}</td>
-                <td>${category.archived}</td>`;
+                <td>${getActiveNotesCount(category.name)}</td>
+                <td>${getArchivedNotesCount(category.name)}</td>`;
     tableBody.appendChild(row);
   });
 }
