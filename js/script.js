@@ -1,7 +1,9 @@
 import { archive, pen, trash } from "./icons.js";
 import { categories } from "./mockup.js";
 
-let notesData = [
+import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
+
+let notes = [
   {
     name: "Shopping list",
     timeOfCreation: "April 20, 2021, 12:00",
@@ -68,62 +70,84 @@ function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
 }
 
-function clearAll() {
-  notesData.splice(0, notesData.length);
+function archiveNote(note) {
+  notes.map((element) => {
+    if (element === note) {
+      note.archived = !note.archived;
+    }
+  });
   updateNotesTable();
   updateCategoriesTable();
 }
 
-function archiveNote(index) {
-  console.log(index);
-  notesData[index].archived = !notesData[index].archived;
+function deleteNote(note) {
+  notes = notes.filter((e) => e !== note);
   updateNotesTable();
   updateCategoriesTable();
 }
 
-function deleteNote(index) {
-  notesData = notesData.filter((e, i) => i != index);
-  updateNotesTable();
-  updateCategoriesTable();
+function createInput(placeholder, value) {
+  const input = document.createElement("input");
+  input.setAttribute("type", "text");
+  input.setAttribute("placeholder", placeholder);
+  input.setAttribute("value", value);
+  input.classList.add("form-control");
+  return input;
 }
 
-function showModal(action, index) {
-  const modal = document.getElementById('myModal');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalContent = document.getElementById('modalContent');
-  const acceptBtn = document.getElementById('acceptBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
+function createTextarea(placeholder, value) {
+  const textarea = document.createElement("textarea");
+  textarea.classList.add("form-control");
+  textarea.setAttribute("placeholder", placeholder);
+  textarea.value = value;
+  return textarea;
+}
+
+function showModal(action, note) {
+  const modal = document.getElementById("myModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalContent = document.getElementById("modalContent");
+  const acceptBtn = document.getElementById("acceptBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
 
   switch (action) {
-    case 'Archive':
-      modalTitle.textContent = 'Archive Note';
-      modalContent.textContent = 'Are you sure you want to archive this note?';
-      acceptBtn.addEventListener("click", () => {
-        archiveNote(index);
-        closeModal();
-      });
-      break;
-    case 'Delete':
-      modalTitle.textContent = 'Delete Note';
-      modalContent.textContent = 'Are you sure you want to delete this note?';
-      acceptBtn.onclick = function () {
-        deleteNote(index);
+    case "Archive": {
+      {
+      }
+      modalTitle.textContent = "Archive Note";
+      modalContent.textContent = "Are you sure you want to archive this note?";
+      acceptBtn.onclick = () => {
+        archiveNote(note);
         closeModal();
       };
       break;
-    case 'Edit':
-      modalTitle.textContent = 'Edit Note';
-      modalContent.textContent = 'You can edit the note here.';
-      acceptBtn.onclick = function () {
+    }
+    case "Delete": {
+      modalTitle.textContent = "Delete Note";
+      modalContent.textContent = "Are you sure you want to delete this note?";
+      acceptBtn.onclick = () => {
+        deleteNote(note);
+        closeModal();
+      };
+      break;
+    }
+    case "Edit": {
+      modalTitle.textContent = "Edit Note";
+      modalContent.textContent = "You can edit the note here.";
+      modalContent.appendChild(createInput("Note Name", note.name));
+      modalContent.appendChild(createInput("Category", note.noteCategory));
+      modalContent.appendChild(createTextarea("Content", note.noteContent));
+      acceptBtn.onclick = () => {
         editNote();
         closeModal();
       };
       break;
+    }
     default:
-      modalTitle.textContent = '';
-      modalContent.textContent = '';
+      modalTitle.textContent = "";
+      modalContent.textContent = "";
   }
-  modal.style.display = 'block';
+  modal.style.display = "block";
 
   cancelBtn.onclick = function () {
     closeModal();
@@ -131,8 +155,10 @@ function showModal(action, index) {
 }
 
 function closeModal() {
-  const modal = document.getElementById('myModal');
-  modal.style.display = 'none';
+  const modal = document.getElementById("myModal");
+  modal.style.display = "none";
+  modalTitle.textContent = "";
+  modalContent.textContent = "";
 }
 
 function createActionButton(icon, clickHandler) {
@@ -154,16 +180,20 @@ function createNoteRow(note, index) {
                 <td>${note.noteCategory}</td>
                 <td>${note.noteContent}</td>
                 <td>${note.datesMentioned.join(", ")}</td>`;
-  row.appendChild(createActionButton(archive, () => showModal('Archive', index)));
-  // row.appendChild(createActionButton(pen, () => editNote(note), "#exampleModal"))
-  row.appendChild(createActionButton(trash, () => showModal('Delete', index)));
+  row.appendChild(
+    createActionButton(archive, () => showModal("Archive", note))
+  );
+  // row.appendChild(
+  //   createActionButton(pen, () => showModal("Edit", index, note))
+  // );
+  row.appendChild(createActionButton(trash, () => showModal("Delete", note)));
   return row;
 }
 
 function updateNotesTable() {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
-  notesData.forEach((note, index) => {
+  notes.forEach((note, index) => {
     if (showArchivedNotes == note.archived) {
       const row = createNoteRow(note, index);
       tableBody.appendChild(row);
@@ -189,37 +219,21 @@ function updateCategoriesTable() {
 const activeNotesSection = document.querySelector(".active-notes-option>a");
 const archiveNotesSection = document.querySelector(".archived-notes-option>a");
 
-function changeHeading(heading) {
-  const h2 = document.querySelector(".notes-title");
-  h2.innerText = heading;
-}
-
-function selectActiveNotes() {
-  showArchivedNotes = false;
-  activeNotesSection.classList.remove("link-body-emphasis");
-  activeNotesSection.classList.add("link-secondary");
-  archiveNotesSection.classList.remove("link-secondary");
-  archiveNotesSection.classList.add("link-body-emphasis");
-  changeHeading("My Notes");
+activeNotesSection.addEventListener("click", () => {
+  showArchivedNotes = selectActiveNotes(
+    activeNotesSection,
+    archiveNotesSection
+  );
   updateNotesTable();
-}
+});
 
-function selectArchivedNotes() {
-  showArchivedNotes = true;
-  archiveNotesSection.classList.add("link-secondary");
-  archiveNotesSection.classList.remove("link-body-emphasis");
-  activeNotesSection.classList.add("link-body-emphasis");
-  activeNotesSection.classList.remove("link-secondary");
-  changeHeading("Archive");
+archiveNotesSection.addEventListener("click", () => {
+  showArchivedNotes = selectArchivedNotes(
+    activeNotesSection,
+    archiveNotesSection
+  );
   updateNotesTable();
-}
-
-activeNotesSection.addEventListener("click", selectActiveNotes);
-archiveNotesSection.addEventListener("click", selectArchivedNotes);
-
-const clearAllButton = document.querySelector(".bi-eraser");
-
-clearAllButton.addEventListener("click", clearAll);
+});
 
 updateNotesTable();
 updateCategoriesTable();
