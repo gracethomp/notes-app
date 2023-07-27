@@ -81,8 +81,8 @@ function archiveNote(index) {
   updateCategoriesTable();
 }
 
-function removeNote(note) {
-  notesData = notesData.filter((e) => e != note);
+function deleteNote(index) {
+  notesData = notesData.filter((e, i) => i != index);
   updateNotesTable();
   updateCategoriesTable();
 }
@@ -107,7 +107,7 @@ function showModal(action, index) {
       modalTitle.textContent = 'Delete Note';
       modalContent.textContent = 'Are you sure you want to delete this note?';
       acceptBtn.onclick = function () {
-        deleteNote();
+        deleteNote(index);
         closeModal();
       };
       break;
@@ -156,7 +156,7 @@ function createNoteRow(note, index) {
                 <td>${note.datesMentioned.join(", ")}</td>`;
   row.appendChild(createActionButton(archive, () => showModal('Archive', index)));
   // row.appendChild(createActionButton(pen, () => editNote(note), "#exampleModal"))
-  // row.appendChild(createActionButton(trash, () => removeNote(note), "#exampleModal"));
+  row.appendChild(createActionButton(trash, () => showModal('Delete', index)));
   return row;
 }
 
