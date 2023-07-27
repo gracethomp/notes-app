@@ -1,7 +1,7 @@
 import { archive, pen, trash } from "./icons.js";
 import { initialNotes, categories } from "./mockup.js";
-
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
+import { updateCategoriesTable } from "./categories.js";
 
 let notes = [...initialNotes];
 
@@ -11,24 +11,6 @@ function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
 }
 
-function getActiveNotesCount(category) {
-  return notes.reduce((accumulator, note) => {
-    if (note.noteCategory === category && !note.archived) {
-      return ++accumulator;
-    }
-    return accumulator;
-  }, 0);
-}
-
-function getArchivedNotesCount(category) {
-  return notes.reduce((accumulator, note) => {
-    if (note.noteCategory === category && note.archived) {
-      return ++accumulator;
-    }
-    return accumulator;
-  }, 0);
-}
-
 function archiveNote(note) {
   notes.map((element) => {
     if (element === note) {
@@ -36,13 +18,25 @@ function archiveNote(note) {
     }
   });
   updateNotesTable();
-  updateCategoriesTable();
+  updateCategoriesTable(notes);
+}
+
+function editNote(note) {
+  notes.map((element) => {
+    if (note === element) {
+      note.name = document.querySelector("#modalContent>input").value;
+      note.noteCategory = document.querySelector("#modalContent>select").value;
+      note.noteContent = document.querySelector("#modalContent>textarea").value;
+    }
+  });
+  updateNotesTable();
+  updateCategoriesTable(notes);
 }
 
 function deleteNote(note) {
   notes = notes.filter((e) => e !== note);
   updateNotesTable();
-  updateCategoriesTable();
+  updateCategoriesTable(notes);
 }
 
 function createInput(placeholder, value) {
@@ -69,12 +63,12 @@ function createCategoriesSelect(category) {
   categories.map((item) => {
     const option = document.createElement("option");
     option.setAttribute("value", item.name);
-    if(item.name === category) {
+    if (item.name === category) {
       option.selected = true;
     }
     option.textContent = item.name;
     select.appendChild(option);
-  })
+  });
   return select;
 }
 
@@ -111,7 +105,7 @@ function showModal(action, note) {
       modalContent.appendChild(createCategoriesSelect(note.noteCategory));
       modalContent.appendChild(createTextarea("Content", note.noteContent));
       acceptBtn.onclick = () => {
-        editNote();
+        editNote(note);
         closeModal();
       };
       break;
@@ -171,22 +165,6 @@ function updateNotesTable() {
     }
   });
 }
-
-function updateCategoriesTable() {
-  const tableBody = document.querySelector(".category-list");
-  tableBody.innerHTML = "";
-  categories.forEach((category) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td class="category-cell">
-                    ${category.icon}
-                </td>
-                <td>${category.name}</td>
-                <td>${getActiveNotesCount(category.name)}</td>
-                <td>${getArchivedNotesCount(category.name)}</td>`;
-    tableBody.appendChild(row);
-  });
-}
-
 const activeNotesSection = document.querySelector(".active-notes-option>a");
 const archiveNotesSection = document.querySelector(".archived-notes-option>a");
 
@@ -207,4 +185,4 @@ archiveNotesSection.addEventListener("click", () => {
 });
 
 updateNotesTable();
-updateCategoriesTable();
+updateCategoriesTable(notes);
