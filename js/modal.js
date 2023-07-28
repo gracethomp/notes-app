@@ -12,7 +12,7 @@ import {
   deleteNote,
   getNotes,
 } from "./dataProcessing.js";
-import { updateNotesTable } from "./script.js";
+import { updateNotesTable } from "./rendering.js";
 import { updateCategoriesTable } from "./categories.js";
 
 const modal = document.getElementById("myModal");

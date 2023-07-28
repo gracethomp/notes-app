@@ -53,3 +53,9 @@ export function createButton(textContent, ...classes) {
   button.textContent = textContent;
   return button;
 }
+
+export function createCell(innerHTML) {
+  const cell = document.createElement("td");
+  cell.innerHTML = innerHTML;
+  return cell;
+}

@@ -1,4 +1,5 @@
 import { categories } from "./mockup.js";
+import { createCell } from "./elements.js";
 
 function getActiveNotesCount(category, notes) {
   return notes.reduce((accumulator, note) => {
@@ -23,12 +24,10 @@ export function updateCategoriesTable(notes) {
   tableBody.innerHTML = "";
   categories.forEach((category) => {
     const row = document.createElement("tr");
-    row.innerHTML = `<td class="category-cell">
-                      ${category.icon}
-                  </td>
-                  <td>${category.name}</td>
-                  <td>${getActiveNotesCount(category.name, notes)}</td>
-                  <td>${getArchivedNotesCount(category.name, notes)}</td>`;
+    row.appendChild(createCell(category.icon));
+    row.appendChild(createCell(category.name));
+    row.appendChild(createCell(getActiveNotesCount(category.name, notes)));
+    row.appendChild(createCell(getArchivedNotesCount(category.name, notes)));
     tableBody.appendChild(row);
   });
 }
