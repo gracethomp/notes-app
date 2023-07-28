@@ -46,3 +46,10 @@ export function createActionButton(icon, clickHandler) {
   button.addEventListener("click", clickHandler);
   return button;
 }
+
+export function createButton(textContent, ...classes) {
+  const button = document.createElement("button");
+  button.classList.add(...classes);
+  button.textContent = textContent;
+  return button;
+}
