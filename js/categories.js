@@ -32,3 +32,7 @@ export function updateCategoriesTable(notes) {
     tableBody.appendChild(row);
   });
 }
+
+export function selectCategoryIcon(category) {
+  return categories.find((item) => item.name === category).icon;
+}

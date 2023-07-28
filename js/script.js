@@ -1,15 +1,11 @@
 import { archive, pen, trash } from "./icons.js";
 import { initialNotes, categories, monthNames } from "./mockup.js";
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
-import { updateCategoriesTable } from "./categories.js";
+import { selectCategoryIcon, updateCategoriesTable } from "./categories.js";
 
 let notes = [...initialNotes];
 
 let showArchivedNotes = false;
-
-function selectCategoryIcon(category) {
-  return categories.find((item) => item.name === category).icon;
-}
 
 function getCurrentTime() {
   const currentDate = new Date();
@@ -19,7 +15,16 @@ function getCurrentTime() {
   const hours = currentDate.getHours();
   const minutes = currentDate.getMinutes();
 
-  return `${month} ${day}, ${year}, ${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+  return `${month} ${day}, ${year}, ${hours}:${
+    minutes < 10 ? "0" : ""
+  }${minutes}`;
+}
+
+function createWarningMessage() {
+  const warningMessage = document.createElement("p");
+  warningMessage.classList.add("warning-message");
+  warningMessage.textContent = "Please fill all fields";
+  return warningMessage;
 }
 
 function addNote() {
@@ -130,8 +135,17 @@ function showModal(action, note) {
       modalContent.appendChild(createCategoriesSelect(note.noteCategory));
       modalContent.appendChild(createTextarea("Content", note.noteContent));
       acceptBtn.onclick = () => {
-        editNote(note);
-        closeModal();
+        if (
+          document.querySelector("#modalContent>input").value === "" ||
+          document.querySelector("#modalContent>textarea").value === ""
+        ) {
+          if (!document.querySelector(".warning-message")) {
+            modalContent.appendChild(createWarningMessage());
+          }
+        } else {
+          editNote(note);
+          closeModal();
+        }
       };
       break;
     }
@@ -143,8 +157,17 @@ function showModal(action, note) {
       modalContent.appendChild(createCategoriesSelect("Task"));
       modalContent.appendChild(createTextarea("Content"));
       acceptBtn.onclick = () => {
-        addNote();
-        closeModal();
+        if (
+          document.querySelector("#modalContent>input").value === "" ||
+          document.querySelector("#modalContent>textarea").value === ""
+        ) {
+          if (!document.querySelector(".warning-message")) {
+            modalContent.appendChild(createWarningMessage());
+          }
+        } else {
+          addNote();
+          closeModal();
+        }
       };
       break;
     }
