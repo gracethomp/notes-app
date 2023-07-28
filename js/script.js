@@ -1,5 +1,5 @@
 import { archive, pen, trash } from "./icons.js";
-import { initialNotes, categories } from "./mockup.js";
+import { initialNotes, categories, monthNames } from "./mockup.js";
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
 import { updateCategoriesTable } from "./categories.js";
 
@@ -9,6 +9,31 @@ let showArchivedNotes = false;
 
 function selectCategoryIcon(category) {
   return categories.find((item) => item.name === category).icon;
+}
+
+function getCurrentTime() {
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = monthNames[currentDate.getMonth()];
+  const day = currentDate.getDate();
+  const hours = currentDate.getHours();
+  const minutes = currentDate.getMinutes();
+
+  return `${month} ${day}, ${year}, ${hours}:${minutes < 10 ? "0" : ""}${minutes}`;
+}
+
+function addNote() {
+  const newNote = {};
+  newNote.name = document.querySelector("#modalContent>input").value;
+  newNote.timeOfCreation = getCurrentTime();
+  newNote.noteCategory = document.querySelector("#modalContent>select").value;
+  newNote.noteContent = document.querySelector("#modalContent>textarea").value;
+  newNote.archived = showArchivedNotes;
+  newNote.datesMentioned = [];
+  notes = [...notes, newNote];
+  updateNotesTable();
+  updateCategoriesTable(notes);
+  getCurrentTime();
 }
 
 function archiveNote(note) {
@@ -42,8 +67,8 @@ function deleteNote(note) {
 function createInput(placeholder, value) {
   const input = document.createElement("input");
   input.setAttribute("type", "text");
-  input.setAttribute("placeholder", placeholder);
-  input.setAttribute("value", value);
+  input.setAttribute("placeholder", placeholder ? placeholder : "");
+  input.setAttribute("value", value ? value : "");
   input.classList.add("form-control");
   return input;
 }
@@ -52,7 +77,7 @@ function createTextarea(placeholder, value) {
   const textarea = document.createElement("textarea");
   textarea.classList.add("form-control");
   textarea.setAttribute("placeholder", placeholder);
-  textarea.value = value;
+  textarea.value = value ? value : "";
   return textarea;
 }
 
@@ -110,6 +135,19 @@ function showModal(action, note) {
       };
       break;
     }
+    case "Add": {
+      console.log("here");
+      modalTitle.textContent = "Add Note";
+      modalContent.textContent = "You can add new note here.";
+      modalContent.appendChild(createInput("Note Name"));
+      modalContent.appendChild(createCategoriesSelect("Task"));
+      modalContent.appendChild(createTextarea("Content"));
+      acceptBtn.onclick = () => {
+        addNote();
+        closeModal();
+      };
+      break;
+    }
     default:
       modalTitle.textContent = "";
       modalContent.textContent = "";
@@ -159,12 +197,17 @@ function updateNotesTable() {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
   notes.forEach((note, index) => {
-    if (showArchivedNotes == note.archived) {
+    if (showArchivedNotes === note.archived) {
       const row = createNoteRow(note, index);
       tableBody.appendChild(row);
     }
   });
 }
+
+const addButton = document.querySelector(".bi-file-earmark-plus");
+
+addButton.addEventListener("click", () => showModal("Add"));
+
 const activeNotesSection = document.querySelector(".active-notes-option>a");
 const archiveNotesSection = document.querySelector(".archived-notes-option>a");
 

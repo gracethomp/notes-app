@@ -75,6 +75,6 @@ textarea {
     resize: none;
 }
 
-.dropdown {
-    padding: 20px 0;
+.form-select {
+    margin: 20px 0;
 }
