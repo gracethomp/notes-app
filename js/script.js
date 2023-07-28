@@ -1,44 +1,39 @@
 import { archive, pen, trash } from "./icons.js";
-import { initialNotes, categories, monthNames } from "./mockup.js";
+import { initialNotes } from "./mockup.js";
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
 import { selectCategoryIcon, updateCategoriesTable } from "./categories.js";
+import {
+  createInput,
+  createTextarea,
+  createCategoriesSelect,
+  createWarningMessage,
+  createActionButton,
+} from "./elements.js";
+import { getCurrentTime, getDatesFromString } from "./dateUtils.js";
 
 let notes = [...initialNotes];
 
 let showArchivedNotes = false;
 
-function getCurrentTime() {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  const month = monthNames[currentDate.getMonth()];
-  const day = currentDate.getDate();
-  const hours = currentDate.getHours();
-  const minutes = currentDate.getMinutes();
-
-  return `${month} ${day}, ${year}, ${hours}:${
-    minutes < 10 ? "0" : ""
-  }${minutes}`;
-}
-
-function createWarningMessage() {
-  const warningMessage = document.createElement("p");
-  warningMessage.classList.add("warning-message");
-  warningMessage.textContent = "Please fill all fields";
-  return warningMessage;
+function getNotesDataFromForm(action) {
+  const newNote = {};
+  newNote.name = document.querySelector("#modalContent>input").value;
+  newNote.noteCategory = document.querySelector("#modalContent>select").value;
+  newNote.noteContent = document.querySelector("#modalContent>textarea").value;
+  newNote.datesMentioned = getDatesFromString(newNote.name + newNote.noteContent);
+  console.log(newNote.datesMentioned);
+  if (action === "Add") {
+    newNote.timeOfCreation = getCurrentTime();
+    newNote.archived = showArchivedNotes;
+  }
+  return newNote;
 }
 
 function addNote() {
-  const newNote = {};
-  newNote.name = document.querySelector("#modalContent>input").value;
-  newNote.timeOfCreation = getCurrentTime();
-  newNote.noteCategory = document.querySelector("#modalContent>select").value;
-  newNote.noteContent = document.querySelector("#modalContent>textarea").value;
-  newNote.archived = showArchivedNotes;
-  newNote.datesMentioned = [];
+  const newNote = getNotesDataFromForm("Add");
   notes = [...notes, newNote];
   updateNotesTable();
   updateCategoriesTable(notes);
-  getCurrentTime();
 }
 
 function archiveNote(note) {
@@ -52,11 +47,14 @@ function archiveNote(note) {
 }
 
 function editNote(note) {
+  const editedNote = getNotesDataFromForm();
   notes.map((element) => {
     if (note === element) {
-      note.name = document.querySelector("#modalContent>input").value;
-      note.noteCategory = document.querySelector("#modalContent>select").value;
-      note.noteContent = document.querySelector("#modalContent>textarea").value;
+      console.log(editedNote.datesMentioned)
+      note.name = editedNote.name;
+      note.noteCategory = editedNote.noteCategory;
+      note.noteContent = editedNote.noteContent;
+      note.datesMentioned = editedNote.datesMentioned;
     }
   });
   updateNotesTable();
@@ -67,39 +65,6 @@ function deleteNote(note) {
   notes = notes.filter((e) => e !== note);
   updateNotesTable();
   updateCategoriesTable(notes);
-}
-
-function createInput(placeholder, value) {
-  const input = document.createElement("input");
-  input.setAttribute("type", "text");
-  input.setAttribute("placeholder", placeholder ? placeholder : "");
-  input.setAttribute("value", value ? value : "");
-  input.classList.add("form-control");
-  return input;
-}
-
-function createTextarea(placeholder, value) {
-  const textarea = document.createElement("textarea");
-  textarea.classList.add("form-control");
-  textarea.setAttribute("placeholder", placeholder);
-  textarea.value = value ? value : "";
-  return textarea;
-}
-
-function createCategoriesSelect(category) {
-  const select = document.createElement("select");
-  select.classList.add("form-select");
-  select.setAttribute("aria-label", "Default select example");
-  categories.map((item) => {
-    const option = document.createElement("option");
-    option.setAttribute("value", item.name);
-    if (item.name === category) {
-      option.selected = true;
-    }
-    option.textContent = item.name;
-    select.appendChild(option);
-  });
-  return select;
 }
 
 function showModal(action, note) {
@@ -150,7 +115,6 @@ function showModal(action, note) {
       break;
     }
     case "Add": {
-      console.log("here");
       modalTitle.textContent = "Add Note";
       modalContent.textContent = "You can add new note here.";
       modalContent.appendChild(createInput("Note Name"));
@@ -186,14 +150,7 @@ function closeModal() {
   const modal = document.getElementById("myModal");
   modal.style.display = "none";
   modalTitle.textContent = "";
-  modalContent.textContent = "";
-}
-
-function createActionButton(icon, clickHandler) {
-  const button = document.createElement("td");
-  button.innerHTML = icon;
-  button.addEventListener("click", clickHandler);
-  return button;
+  modalContent.innerHTML = "";
 }
 
 function createNoteRow(note, index) {

@@ -1,21 +1,23 @@
-function createInput(placeholder, value) {
+import { categories } from "./mockup.js";
+
+export function createInput(placeholder, value) {
   const input = document.createElement("input");
   input.setAttribute("type", "text");
-  input.setAttribute("placeholder", placeholder);
-  input.setAttribute("value", value);
+  input.setAttribute("placeholder", placeholder ? placeholder : "");
+  input.setAttribute("value", value ? value : "");
   input.classList.add("form-control");
   return input;
 }
 
-function createTextarea(placeholder, value) {
+export function createTextarea(placeholder, value) {
   const textarea = document.createElement("textarea");
   textarea.classList.add("form-control");
   textarea.setAttribute("placeholder", placeholder);
-  textarea.value = value;
+  textarea.value = value ? value : "";
   return textarea;
 }
 
-function createCategoriesSelect(category) {
+export function createCategoriesSelect(category) {
   const select = document.createElement("select");
   select.classList.add("form-select");
   select.setAttribute("aria-label", "Default select example");
@@ -29,4 +31,18 @@ function createCategoriesSelect(category) {
     select.appendChild(option);
   });
   return select;
+}
+
+export function createWarningMessage() {
+  const warningMessage = document.createElement("p");
+  warningMessage.classList.add("warning-message");
+  warningMessage.textContent = "Please fill all fields";
+  return warningMessage;
+}
+
+export function createActionButton(icon, clickHandler) {
+  const button = document.createElement("td");
+  button.innerHTML = icon;
+  button.addEventListener("click", clickHandler);
+  return button;
 }
