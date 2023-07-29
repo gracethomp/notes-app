@@ -1,40 +1,22 @@
 import { initialNotes } from "./mockup.js";
-import { getCurrentTime, getDatesFromString } from "./dateUtils.js";
 
 let notes = [...initialNotes];
 
-export function getNotesDataFromForm(action) {
-  const newNote = {};
-  newNote.name = document.querySelector("#modalContent>input").value;
-  newNote.noteCategory = document.querySelector("#modalContent>select").value;
-  newNote.noteContent = document.querySelector("#modalContent>textarea").value;
-  newNote.datesMentioned = getDatesFromString(
-    newNote.name + newNote.noteContent
-  );
-  if (action === "Add") {
-    newNote.timeOfCreation = getCurrentTime();
-    newNote.archived = false;
-  }
-  return newNote;
-}
-
-export function addNote() {
-  const newNote = getNotesDataFromForm("Add");
+export function addNote(newNote) {
   notes = [...notes, newNote];
 }
 
 export function archiveNote(note) {
-  notes.map((element) => {
-    if (element === note) {
+  notes.map((existingNote) => {
+    if (existingNote === note) {
       note.archived = !note.archived;
     }
   });
 }
 
-export function editNote(note) {
-  const editedNote = getNotesDataFromForm();
-  notes.map((element) => {
-    if (note === element) {
+export function editNote(note, editedNote) {
+  notes.map((existingNote) => {
+    if (note === existingNote) {
       note.name = editedNote.name;
       note.noteCategory = editedNote.noteCategory;
       note.noteContent = editedNote.noteContent;
@@ -44,9 +26,9 @@ export function editNote(note) {
 }
 
 export function deleteNote(note) {
-  notes = notes.filter((e) => e !== note);
+  notes = notes.filter((existingNote) => existingNote !== note);
 }
 
 export function getNotes() {
-    return [...notes];
+  return [...notes];
 }

@@ -15,7 +15,6 @@ export function getCurrentTime() {
 
 export function getDatesFromString(str) {
   const datePattern = /\d{1,2}\/\d{1,2}\/\d{4}/g;
-  console.log(str);
   const dates = str.match(datePattern) || [];
   return dates ? dates : [];
 }

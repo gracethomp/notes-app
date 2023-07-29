@@ -1,7 +1,9 @@
 import { archive, pen, trash } from "./icons.js";
 import { createActionButton, createCell } from "./elements.js";
 import { selectCategoryIcon } from "./categories.js";
-import { showModal } from "./modal.js";
+import { showModal } from "./controller.js";
+import { getNotes } from "./dataProcessing.js";
+import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
 
 let showArchivedNotes = false;
 
@@ -22,6 +24,11 @@ function createNoteRow(note, index) {
   return row;
 }
 
+export function createAddButton() {
+  const addButton = document.querySelector(".bi-file-earmark-plus");
+  addButton.addEventListener("click", () => showModal("Add"));
+}
+
 export function updateNotesTable(notes) {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
@@ -30,5 +37,28 @@ export function updateNotesTable(notes) {
       const row = createNoteRow(note, index);
       tableBody.appendChild(row);
     }
+  });
+}
+
+export function addNotesTypeChanging() {
+  const activeNotesSection = document.querySelector(".active-notes-option>a");
+  const archiveNotesSection = document.querySelector(
+    ".archived-notes-option>a"
+  );
+
+  activeNotesSection.addEventListener("click", () => {
+    showArchivedNotes = selectActiveNotes(
+      activeNotesSection,
+      archiveNotesSection
+    );
+    updateNotesTable(getNotes());
+  });
+
+  archiveNotesSection.addEventListener("click", () => {
+    showArchivedNotes = selectArchivedNotes(
+      activeNotesSection,
+      archiveNotesSection
+    );
+    updateNotesTable(getNotes());
   });
 }

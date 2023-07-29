@@ -1,5 +1,9 @@
 import { categories } from "./mockup.js";
 
+export function getValueBySelector(selector) {
+  return document.querySelector(selector).value;
+}
+
 export function createInput(placeholder, value) {
   const input = document.createElement("input");
   input.setAttribute("type", "text");

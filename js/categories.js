@@ -1,22 +1,18 @@
 import { categories } from "./mockup.js";
 import { createCell } from "./elements.js";
 
-function getActiveNotesCount(category, notes) {
-  return notes.reduce((accumulator, note) => {
-    if (note.noteCategory === category && !note.archived) {
-      return ++accumulator;
-    }
-    return accumulator;
-  }, 0);
+function getActiveNotesCountByCategory(category, notes) {
+  return notes.reduce((accumulator, note) =>
+    note.noteCategory === category && !note.archived ? ++accumulator : accumulator,
+    0
+  );
 }
 
-function getArchivedNotesCount(category, notes) {
-  return notes.reduce((accumulator, note) => {
-    if (note.noteCategory === category && note.archived) {
-      return ++accumulator;
-    }
-    return accumulator;
-  }, 0);
+function getArchivedNotesCountByCategory(category, notes) {
+  return notes.reduce((accumulator, note) =>
+    note.noteCategory === category && note.archived ? ++accumulator : accumulator,
+    0
+  );
 }
 
 export function updateCategoriesTable(notes) {
@@ -26,8 +22,12 @@ export function updateCategoriesTable(notes) {
     const row = document.createElement("tr");
     row.appendChild(createCell(category.icon));
     row.appendChild(createCell(category.name));
-    row.appendChild(createCell(getActiveNotesCount(category.name, notes)));
-    row.appendChild(createCell(getArchivedNotesCount(category.name, notes)));
+    row.appendChild(
+      createCell(getActiveNotesCountByCategory(category.name, notes))
+    );
+    row.appendChild(
+      createCell(getArchivedNotesCountByCategory(category.name, notes))
+    );
     tableBody.appendChild(row);
   });
 }
