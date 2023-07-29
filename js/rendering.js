@@ -64,6 +64,10 @@ export function addNotesTypeChanging() {
 }
 
 export function updateScreenData() {
-  updateNotesTable(getNotes());
-  updateCategoriesTable(getNotes());
+  try {
+    updateNotesTable(getNotes());
+    updateCategoriesTable(getNotes());
+  } catch (error) {
+    console.error("An error occurred while updating the screen data:", error);
+  }
 }
