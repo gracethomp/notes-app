@@ -1,6 +1,6 @@
 import { archive, pen, trash } from "./icons.js";
 import { createActionButton, createCell } from "./elements.js";
-import { selectCategoryIcon } from "./categories.js";
+import { selectCategoryIcon, updateCategoriesTable } from "./categories.js";
 import { showModal } from "./controller.js";
 import { getNotes } from "./dataProcessing.js";
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
@@ -29,7 +29,7 @@ export function createAddButton() {
   addButton.addEventListener("click", () => showModal("Add"));
 }
 
-export function updateNotesTable(notes) {
+function updateNotesTable(notes) {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
   notes.forEach((note, index) => {
@@ -61,4 +61,9 @@ export function addNotesTypeChanging() {
     );
     updateNotesTable(getNotes());
   });
+}
+
+export function updateScreenData() {
+  updateNotesTable(getNotes());
+  updateCategoriesTable(getNotes());
 }

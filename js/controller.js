@@ -13,8 +13,7 @@ import {
   deleteNote,
   getNotes,
 } from "./dataProcessing.js";
-import { updateNotesTable } from "./rendering.js";
-import { updateCategoriesTable } from "./categories.js";
+import { updateScreenData } from "./rendering.js";
 import { getCurrentTime, getDatesFromString } from "./dateUtils.js";
 
 const modal = document.getElementById("myModal");
@@ -22,7 +21,7 @@ const modalTitle = document.getElementById("modalTitle");
 const modalContent = document.getElementById("modalContent");
 const modalActions = document.querySelector(".modal-actions");
 
-function createNoteFromForm(action) {
+function getNoteFromForm(action) {
   const newNote = {};
   newNote.name = getValueBySelector("#modalContent>input");
   newNote.noteCategory = getValueBySelector("#modalContent>select");
@@ -44,9 +43,12 @@ function changeModalText(textTitle, textContent) {
 
 function setConfirmAction(action, acceptBtn) {
   acceptBtn.addEventListener("click", () => {
-    action();
-    updateNotesTable(getNotes());
-    updateCategoriesTable(getNotes());
+    try {
+      action();
+      updateScreenData();
+    } catch (error) {
+      console.error("Error occurred during action:", error);
+    }
   });
 }
 
@@ -74,110 +76,98 @@ function saveNoteChanges(action) {
       modalContent.appendChild(createWarningMessage());
     }
   } else {
-    action();
-    updateNotesTable(getNotes());
-    updateCategoriesTable(getNotes());
-    closeModal();
+    try {
+      action();
+      updateScreenData();
+      closeModal();
+    } catch (error) {
+      console.error("Error occurred during action:", error);
+    }
   }
 }
 
-function handleArchiveClick(note) {
-  const acceptBtn = createButton("Accept", "btn", "btn-dark");
+function setupModalActions(
+  acceptText,
+  cancelText,
+  titleText,
+  contentText,
+  onAccept
+) {
+  const acceptBtn = createButton(acceptText, "btn", "btn-dark");
   const cancelBtn = createButton(
-    "Cancel",
+    cancelText,
     "btn",
     "btn-light",
     "btn-outline-dark"
   );
   modalActions.appendChild(acceptBtn);
   modalActions.appendChild(cancelBtn);
-  changeModalText(
-    "Archive Note",
-    `Are you sure you want to ${
-      note.archived ? "unarchive" : "archive"
-    } this note?`
-  );
+  changeModalText(titleText, contentText);
   setConfirmAction(() => {
-    archiveNote(note);
-    closeModal();
+    onAccept();
   }, acceptBtn);
+
   cancelBtn.addEventListener("click", () => {
     closeModal();
   });
-  openModal();
+}
+
+function handleArchiveClick(note) {
+  const acceptText = "Accept";
+  const cancelText = "Cancel";
+  const titleText = "Archive Note";
+  const contentText = `Are you sure you want to ${
+    note.archived ? "unarchive" : "archive"
+  } this note?`;
+  setupModalActions(acceptText, cancelText, titleText, contentText, () => {
+    archiveNote(note);
+    closeModal();
+  });
 }
 
 function handleDeleteClick(note) {
-  const acceptBtn = createButton("Accept", "btn", "btn-dark");
-  const cancelBtn = createButton(
-    "Cancel",
-    "btn",
-    "btn-light",
-    "btn-outline-dark"
-  );
-  modalActions.appendChild(acceptBtn);
-  modalActions.appendChild(cancelBtn);
-  changeModalText("Delete Note", "Are you sure you want to delete this note?");
-  setConfirmAction(() => {
+  const acceptText = "Accept";
+  const cancelText = "Cancel";
+  const titleText = "Delete Note";
+  const contentText = "Are you sure you want to delete this note?";
+  setupModalActions(acceptText, cancelText, titleText, contentText, () => {
     deleteNote(note);
     closeModal();
-  }, acceptBtn);
-  cancelBtn.addEventListener("click", () => {
-    closeModal();
   });
-  openModal();
 }
 
 function handleEditClick(note) {
-  const acceptBtn = createButton("Accept", "btn", "btn-dark");
-  const cancelBtn = createButton(
-    "Cancel",
-    "btn",
-    "btn-light",
-    "btn-outline-dark"
-  );
-  modalActions.appendChild(acceptBtn);
-  modalActions.appendChild(cancelBtn);
-  changeModalText("Edit Note", "You can edit the note here.");
-  setConfirmAction(() => {
+  const acceptText = "Accept";
+  const cancelText = "Cancel";
+  const titleText = "Edit Note";
+  const contentText = "You can edit the note here.";
+  setupModalActions(acceptText, cancelText, titleText, contentText, () => {
     saveNoteChanges(() => {
-      const editedNote = createNoteFromForm();
+      const editedNote = getNoteFromForm();
       editNote(note, editedNote);
     });
-  }, acceptBtn);
-  cancelBtn.addEventListener("click", () => {
-    closeModal();
   });
   modalContent.appendChild(createInput("Note Name", note.name));
   modalContent.appendChild(createCategoriesSelect(note.noteCategory));
   modalContent.appendChild(createTextarea("Content", note.noteContent));
-  openModal();
 }
 
 function handleAddClick() {
-  const acceptBtn = createButton("Accept", "btn", "btn-dark");
-  const cancelBtn = createButton(
-    "Cancel",
-    "btn",
-    "btn-light",
-    "btn-outline-dark"
-  );
-  modalActions.appendChild(acceptBtn);
-  modalActions.appendChild(cancelBtn);
-  changeModalText("Add Note", "You can add a new note here.");
-  setConfirmAction(() => {
+  const acceptText = "Accept";
+  const cancelText = "Cancel";
+  const titleText = "Add Note";
+  const contentText = "You can add a new note here.";
+
+  setupModalActions(acceptText, cancelText, titleText, contentText, () => {
     saveNoteChanges(() => {
-      const newNote = createNoteFromForm("Add");
+      const newNote = getNoteFromForm("Add");
       addNote(newNote);
     });
-  }, acceptBtn);
-  cancelBtn.addEventListener("click", () => {
-    closeModal();
   });
+
   modalContent.appendChild(createInput("Note Name"));
   modalContent.appendChild(createCategoriesSelect("Task"));
   modalContent.appendChild(createTextarea("Content"));
-  openModal();
 }
 
 export function showModal(action, note) {
@@ -202,4 +192,5 @@ export function showModal(action, note) {
       modalTitle.textContent = "";
       modalContent.textContent = "";
   }
+  openModal();
 }
