@@ -1,6 +1,7 @@
 import { archive, pen, trash } from "./icons.js";
 import { createActionButton, createCell } from "./elements.js";
-import { selectCategoryIcon, updateCategoriesTable } from "./categories.js";
+import { selectCategoryIcon } from "./categories.js";
+import { categories } from "./mockup.js";
 import { showModal } from "./controller.js";
 import { getNotes } from "./dataProcessing.js";
 import { selectActiveNotes, selectArchivedNotes } from "./noteTypes.js";
@@ -24,11 +25,6 @@ function createNoteRow(note, index) {
   return row;
 }
 
-export function createAddButton() {
-  const addButton = document.querySelector(".bi-file-earmark-plus");
-  addButton.addEventListener("click", () => showModal("Add"));
-}
-
 function updateNotesTable(notes) {
   const tableBody = document.querySelector(".note-list");
   tableBody.innerHTML = "";
@@ -39,6 +35,29 @@ function updateNotesTable(notes) {
     }
   });
 }
+
+function updateCategoriesTable() {
+  const tableBody = document.querySelector(".category-list");
+  tableBody.innerHTML = "";
+  categories.forEach((category) => {
+    const row = document.createElement("tr");
+    row.appendChild(createCell(category.icon));
+    row.appendChild(createCell(category.name));
+    row.appendChild(
+      createCell(category.active)
+    );
+    row.appendChild(
+      createCell(category.archived)
+    );
+    tableBody.appendChild(row);
+  });
+}
+
+export function createAddButton() {
+  const addButton = document.querySelector(".bi-file-earmark-plus");
+  addButton.addEventListener("click", () => showModal("Add"));
+}
+
 
 export function addNotesTypeChanging() {
   const activeNotesSection = document.querySelector(".active-notes-option>a");
@@ -66,7 +85,7 @@ export function addNotesTypeChanging() {
 export function updateScreenData() {
   try {
     updateNotesTable(getNotes());
-    updateCategoriesTable(getNotes());
+    updateCategoriesTable();
   } catch (error) {
     console.error("An error occurred while updating the screen data:", error);
   }
