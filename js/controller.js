@@ -26,9 +26,7 @@ function getNoteFromForm(action) {
   newNote.name = getValueBySelector("#modalContent>input");
   newNote.noteCategory = getValueBySelector("#modalContent>select");
   newNote.noteContent = getValueBySelector("#modalContent>textarea");
-  newNote.datesMentioned = getDatesFromString(
-    newNote.name + " " + newNote.noteContent
-  );
+  newNote.datesMentioned = getDatesFromString(newNote.noteContent);
   if (action === "Add") {
     newNote.timeOfCreation = getCurrentTime();
     newNote.archived = false;
