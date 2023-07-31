@@ -11,7 +11,6 @@ import {
   archiveNote,
   editNote,
   deleteNote,
-  getNotes,
 } from "./dataProcessing.js";
 import { updateScreenData } from "./rendering.js";
 import { getCurrentTime, getDatesFromString } from "./dateUtils.js";
